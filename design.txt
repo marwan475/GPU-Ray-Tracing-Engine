@@ -1,0 +1,13 @@
+
+Ray Tracing Engine
+
+- Compute
+  - use OpenCL to compute vector math
+  - Generates an Array of pixel color data
+
+- Renderer
+  - Renders the pixel data to the screen using OpenGL
+
+- UI
+  - ImGUI to create the engines UI/editing features
+
