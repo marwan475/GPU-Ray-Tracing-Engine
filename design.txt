@@ -11,3 +11,37 @@ Ray Tracing Engine
 - UI
   - ImGUI to create the engines UI/editing features
 
+
+Main Design/features
+
+UI
+ - viewport to view the scene
+ - allows you too add objects to the scene
+ - select object shapes and colors
+ - place object 3d position
+ - move camera in 3d space
+ - move where camera is looking at
+ - render the scene
+ - save image
+ - save scene
+ - load scene
+ - create new scene
+ - set dimensions and aspect ratio of scene
+ - set sampling size of rendering algorithm
+
+Computaions
+ - renders the scene based on scene data
+ - each pixel color from the cameras viewport is calculated using its ray
+ - pixel color computaions will be computed on the GPU using OpenCL
+ - an array of pixel color data will be returned to the main program
+
+Renderer
+ - gets the array of pixel data
+ - uses array to create a texture using OpenGL
+ - uses OpenGL to render the texture to the viewport of the UI
+
+Main
+ - gets data from UI and adjust the scene
+ - sends scene data to Computations 
+ - recives array of pixel data from Computations
+ - sends array to renderer 
