@@ -34,6 +34,7 @@ Computaions
  - each pixel color from the cameras viewport is calculated using its ray
  - pixel color computaions will be computed on the GPU using OpenCL
  - an array of pixel color data will be returned to the main program
+ - will use multithreading to fill out array quicker
 
 Renderer
  - gets the array of pixel data
