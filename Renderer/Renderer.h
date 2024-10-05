@@ -25,6 +25,6 @@ extern Kernel kernel;
 
 void OpenClinit(vector<char*> files);
 
-void RunKernal();
+cl_float3* RunKernal();
 
 #endif

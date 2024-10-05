@@ -147,7 +147,7 @@ void OpenClinit(vector<char*> files)
 
 }
 
-void RunKernal()
+cl_float3* RunKernal()
 {
   cl_float3* output = new cl_float3[10*10]; // gpu output
   float input[3] = { 3.0 , 7.0, 23.0}; // gpu input
@@ -177,11 +177,11 @@ void RunKernal()
 
   // display output
   for (int i = 0; i< 100;i++){
-      printf("(%d) = {%2f,%2f,%2f} ",i,output[i].s[0],output[i].s[1],output[i].s[2]);
+      //printf("(%d) = {%2f,%2f,%2f} ",i,output[i].s[0],output[i].s[1],output[i].s[2]);
     
-    printf("\n");
+    //printf("\n");
   }
 
-  delete output;
+  return output;
 }
 

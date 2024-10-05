@@ -11,6 +11,9 @@
 #include <UI.h>
 #include <Renderer.h>
 
+__declspec(dllexport) DWORD NvOptimusEnablement = 1;
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+
 // Data stored per platform window
 struct WGL_WindowData { HDC hDC; };
 
@@ -127,6 +130,8 @@ int main(int, char**)
 
     OpenClinit(files);
 
+    cl_float3* output;
+
     // Main loop
     bool done = false;
     while (!done)
@@ -153,6 +158,9 @@ int main(int, char**)
         ImGui::NewFrame();
 
         UI();
+        output = RunKernal();
+
+        delete output;
 
         // Rendering
         ImGui::Render();
