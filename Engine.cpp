@@ -132,6 +132,21 @@ int main(int, char**)
 
     cl_float3* output;
 
+    struct Camera camera;
+
+    camera.width = 500;
+    camera.aspect_ratio = 16.0/9.0;
+    camera.fov = 90;
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 1;
+    camera.look.x = 0;
+    camera.look.y = 0;
+    camera.look.z = 0;
+    camera.vup.x = 0;
+    camera.vup.y = 1;
+    camera.vup.z = 0;
+
     // Main loop
     bool done = false;
     while (!done)
@@ -158,6 +173,7 @@ int main(int, char**)
         ImGui::NewFrame();
 
         UI();
+        UpdateCamera(&camera);
         output = RunKernal();
 
         delete output;

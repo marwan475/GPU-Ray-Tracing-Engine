@@ -185,3 +185,30 @@ cl_float3* RunKernal()
   return output;
 }
 
+void UpdateCamera(struct Camera *c)
+{
+  c->height = int(c->width/c->aspect_ratio);
+
+  c->focal_length = subtractVectors(vvert(c->position),vvert(c->look)).length();
+
+  float h = std::tan(degrees_to_radians(c->fov)/2);
+
+  c->viewport_h = 2*h*c->focal_length;
+  c->viewport_w = c->viewport_h*(double(c->width)/double(c->height));
+
+  c->dw = cvert(unitVector(subtractVectors(vvert(c->position),vvert(c->look))));
+  c->du = cvert(unitVector(crossproduct(vvert(c->vup),vvert(c->dw))));
+  c->dv = cvert(crossproduct(vvert(c->dw),vvert(c->du)));
+
+  c->viewport_u = cvert(SmultiVector(c->viewport_w,vvert(c->du)));
+  c->viewport_v = cvert(SmultiVector(c->viewport_h,SmultiVector(-1,vvert(c->dv)))); 
+
+  c->delta_u = cvert(SdivideVector(c->width,vvert(c->viewport_u))); // change between pixels horizotanlly
+  c->delta_v = cvert(SdivideVector(c->height,vvert(c->viewport_v)));// change between pixels vertically
+
+  c->vp_upperleft = cvert(subtractVectors(subtractVectors(subtractVectors(vvert(c->position),SmultiVector(c->focal_length,vvert(c->dw))),SdivideVector(2,vvert(c->viewport_u))),SdivideVector(2,vvert(c->viewport_v))));
+
+  c->pixel_location = cvert(addVectors(vvert(c->vp_upperleft),SmultiVector(0.5,addVectors(vvert(c->delta_u),vvert(c->delta_v)))));
+
+}
+
