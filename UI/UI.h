@@ -1,6 +1,8 @@
 #ifndef UI_H
 #define UI_H
 
-void UI();
+#include <GL/GL.h>
+
+void UI(GLuint texture,int width,int height); 
 
 #endif

@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include <stdio.h>
 
-void UI() 
+void UI(GLuint texture,int width,int height) 
 {
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
@@ -112,7 +112,20 @@ void UI()
     ImGui::End();
 
     ImGui::Begin("ViewPort",nullptr,flags);
+    if (texture) {
+        ImGui::Text("Displaying Image:");
+        ImGui::Image((void*)(intptr_t)texture, ImVec2(width, height)); // Use actual dimensions
+    } else {
+        ImGui::Text("Failed to create texture.");
+    }
     ImGui::End();
+
+    ImGui::Begin("test2",nullptr,flags);
+    ImGui::End();
+
+    ImGui::Begin("test3",nullptr,flags);
+    ImGui::End();
+
 
     ImGui::End();
 

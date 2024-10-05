@@ -6,7 +6,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#include <GL/GL.h>
 #include <tchar.h>
 #include <UI.h>
 #include <Renderer.h>
@@ -61,13 +60,31 @@ static void Hook_Renderer_SwapBuffers(ImGuiViewport* viewport, void*)
         ::SwapBuffers(data->hDC);
 }
 
+GLuint CreateTexture(cl_float* rgbData, int width, int height) {
+    GLuint texture;
+    glGenTextures(1, &texture);  // Generate a texture ID
+    glBindTexture(GL_TEXTURE_2D, texture);  // Bind the texture
+
+    // Specify the texture image data (consider using GL_UNSIGNED_BYTE if needed)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, rgbData);
+
+    // Set texture parameters for wrapping and filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);  // Change to GL_CLAMP
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);  // Change to GL_CLAMP
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return texture;  // Return the texture ID
+}
+
+
 int main(int, char**)
 {
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_OWNDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui Win32+OpenGL3 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Engine", WS_OVERLAPPEDWINDOW, 0, 0, 1600, 1000, nullptr, nullptr, wc.hInstance, nullptr);
 
     // Initialize OpenGL
     if (!CreateDeviceWGL(hwnd, &g_MainWindow))
@@ -132,11 +149,11 @@ int main(int, char**)
 
     OpenClinit(files);
 
-    cl_float3* output;
+    cl_float* output;
 
     struct Camera camera;
 
-    camera.width = 500;
+    camera.width = 900;
     camera.aspect_ratio = 16.0/9.0;
     camera.fov = 90;
     camera.position.x = 0;
@@ -150,6 +167,8 @@ int main(int, char**)
     camera.vup.z = 0;
 
     UpdateCamera(&camera);
+
+    GLuint texture;
 
     // Main loop
     bool done = false;
@@ -176,8 +195,11 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        UI();
+        
         output = RunKernal(camera);
+
+        texture = CreateTexture(output,camera.width,camera.height);
+        UI(texture,camera.width,camera.height);
 
         delete output;
 

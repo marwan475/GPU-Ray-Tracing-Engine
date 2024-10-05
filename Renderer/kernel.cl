@@ -66,6 +66,18 @@ float3 Sdividef(float b, float3 a)
     return r;
 }
 
+float3 fabs3(float3 f)
+{
+  float3 r;
+
+  r.x = fabs(f.x);
+  r.y = fabs(f.y);
+  r.z = fabs(f.z);
+
+  return r;
+
+}
+
 struct Camera{
     int width;
     int height;
@@ -130,6 +142,8 @@ struct ray getray(int x, int y, struct Camera c)
 
   float3 ray_direction = subf(center,c.position);
 
+  length(center);
+
   struct ray r;
 
   r.origin = c.position;
@@ -139,13 +153,37 @@ struct ray getray(int x, int y, struct Camera c)
 
 }
 
-__kernel void kernel_main(__constant float* input, struct Camera c,__global float3* output)
+float3 background(struct ray r)
 {
-  unsigned int work_item_id = get_global_id(0);	/* the unique global id of the work item for current index*/
+  float3 ud = normalize(r.direction);
+
+  float n = 0.5*(ud.y + 1.5);
+  float xn = 1.0 - n;
+
+  float3 color = {n*1.0,n*0.7,n*0.5};
+
+  float3 xcolor = {xn*1.0,xn*1.0,xn*1.0};
+
+  return addf(xcolor,color);
+}
+
+float3 pixelcolor(struct ray r)
+{
+  return background(r);
+}
+
+__kernel void kernel_main(__constant float* input, struct Camera c,__global float* output)
+{
+  unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
   int x = work_item_id % c.width;	
   int y = work_item_id / c.width;
 
   struct ray r = getray(x,y,c);
 
-  output[work_item_id] = get(1.0,r);		
+  float3 color = pixelcolor(r);
+
+  output[work_item_id] = color.x;
+  output[work_item_id+1] = color.y;
+  output[work_item_id+2] = color.z;
+
 }
