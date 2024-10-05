@@ -47,37 +47,6 @@ Main
  - recives array of pixel data from Computations
  - sends array to renderer 
 
-Project Structure
-
-- / 
-    engine.cpp -- main
-    Makefile
-    /Saved_Images
-    /Saved_scenes
-    /UI
-      ui.cpp -- Ui layout code
-      /imgui -- imgui libary
-    /rendering
-      render.cpp -- OpenGL texture creation code
-    /computations
-      /vector    
-        vec3.h
-        vec3.cpp
-      /rays
-        ray.h
-        ray.cpp
-      /utility
-        utility.h
-        utility.cpp
-      /objects
-        objects.h
-        objects.cpp
-      /computation
-        computation.h
-        computation.cpp
-      /camera
-        camera.h
-        camera.cpp
 
 
 
