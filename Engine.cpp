@@ -175,7 +175,7 @@ int main(int, char**)
         ImGui::NewFrame();
 
         UI();
-        output = RunKernal();
+        output = RunKernal(camera);
 
         delete output;
 

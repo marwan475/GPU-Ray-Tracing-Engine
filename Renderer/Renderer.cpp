@@ -147,7 +147,7 @@ void OpenClinit(vector<char*> files)
 
 }
 
-cl_float3* RunKernal()
+cl_float3* RunKernal(struct Camera c)
 {
   cl_float3* output = new cl_float3[10*10]; // gpu output
   float input[3] = { 3.0 , 7.0, 23.0}; // gpu input
@@ -157,9 +157,10 @@ cl_float3* RunKernal()
   Buffer gpu_input = Buffer(context,CL_MEM_READ_ONLY,3*sizeof(float)); // input buffer
   queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, 3*sizeof(float), input); // write to the input buffer
 
+
   // setting kernal args
   kernel.setArg(0, gpu_input);
-  kernel.setArg(1, factor);
+  kernel.setArg(1, c);
   kernel.setArg(2, gpu_output);
 
   // each index of output will be computed at same time
@@ -176,11 +177,13 @@ cl_float3* RunKernal()
   queue.enqueueReadBuffer(gpu_output, CL_TRUE, 0, 10*10*sizeof(cl_float3), output);
 
   // display output
+  /*
   for (int i = 0; i< 100;i++){
-      //printf("(%d) = {%2f,%2f,%2f} ",i,output[i].s[0],output[i].s[1],output[i].s[2]);
+      printf("(%d) = {%2f,%2f,%2f} ",i,output[i].s[0],output[i].s[1],output[i].s[2]);
     
-    //printf("\n");
+    printf("\n");
   }
+  */
 
   return output;
 }
@@ -209,6 +212,8 @@ void UpdateCamera(struct Camera *c)
   c->vp_upperleft = cvert(subtractVectors(subtractVectors(subtractVectors(vvert(c->position),SmultiVector(c->focal_length,vvert(c->dw))),SdivideVector(2,vvert(c->viewport_u))),SdivideVector(2,vvert(c->viewport_v))));
 
   c->pixel_location = cvert(addVectors(vvert(c->vp_upperleft),SmultiVector(0.5,addVectors(vvert(c->delta_u),vvert(c->delta_v)))));
+
+  printf("%f, %f, %f\n",c->pixel_location.x,c->pixel_location.y,c->pixel_location.z);
 
 }
 

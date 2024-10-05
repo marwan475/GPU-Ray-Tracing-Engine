@@ -1,3 +1,24 @@
+
+struct Camera{
+    int width;
+    int height;
+    float aspect_ratio;
+    float viewport_h;
+    float viewport_w;
+    float focal_length;
+    float3 position;
+    float3 viewport_u;
+    float3 viewport_v;
+    float fov;   
+    float3 look;
+    float3 vup;
+    float3 du,dv,dw;
+    float3 delta_u;
+    float3 delta_v;
+    float3 vp_upperleft;
+    float3 pixel_location;
+};
+
 float random(int s0, int s1) {
 	
     union {
@@ -14,13 +35,11 @@ float random(int s0, int s1) {
 	return (r.f - 2.0f) / 2.0f;
 }
 
-__kernel void kernel_main(__constant float* input,float factor,__global float3* output)
+__kernel void kernel_main(__constant float* input,struct Camera camera,__global float3* output)
 {
   unsigned int work_item_id = get_global_id(0);	/* the unique global id of the work item for current index*/
   int x_index = work_item_id % 10;	
   int y_index = work_item_id / 10;
 
-  float3 i = {input[0]*factor + input[1]*factor + input[2]*factor,random(x_index,y_index),x_index + y_index};
-
-  output[work_item_id] = i;		
+  output[work_item_id] = camera.pixel_location;		
 }

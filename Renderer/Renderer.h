@@ -1,5 +1,5 @@
-#ifndef OPENCLABSTRACTIONS_H
-#define OPENCLABSTRACTIONS_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
 #include <cl.hpp>
 #include <vector>
@@ -61,8 +61,7 @@ inline vec3 vvert(cl_float3 c)
 }
 
 void OpenClinit(vector<char*> files);
-cl_float3* RunKernal();
-
+cl_float3* RunKernal(struct Camera c);
 void UpdateCamera(struct Camera* c);
 
 #endif
