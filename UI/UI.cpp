@@ -113,7 +113,8 @@ void UI(GLuint texture,int width,int height)
 
     ImGui::Begin("ViewPort",nullptr,flags);
     if (texture) {
-        ImGui::Text("Displaying Image:");
+        
+        ImGui::Text("Framerate: %f fps",ImGui::GetIO().Framerate);
         ImGui::Image((void*)(intptr_t)texture, ImVec2(width, height)); // Use actual dimensions
     } else {
         ImGui::Text("Failed to create texture.");
