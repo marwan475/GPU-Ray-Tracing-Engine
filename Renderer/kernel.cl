@@ -142,8 +142,8 @@ struct ray getray(int x, int y, struct Camera c)
 __kernel void kernel_main(__constant float* input, struct Camera c,__global float3* output)
 {
   unsigned int work_item_id = get_global_id(0);	/* the unique global id of the work item for current index*/
-  int x = work_item_id % 10;	
-  int y = work_item_id / 10;
+  int x = work_item_id % c.width;	
+  int y = work_item_id / c.width;
 
   struct ray r = getray(x,y,c);
 

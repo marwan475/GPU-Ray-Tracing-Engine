@@ -164,11 +164,12 @@ void OpenClinit(vector<char*> files)
 
 cl_float3* RunKernal(struct Camera c)
 {
-  cl_float3* output = new cl_float3[10*10]; // gpu output
+
+  cl_float3* output = new cl_float3[c.width*c.height]; // gpu output
   float input[3] = { 3.0 , 7.0, 23.0}; // gpu input
   float factor = 9.0;
 
-  Buffer gpu_output = Buffer(context, CL_MEM_WRITE_ONLY,10*10*sizeof(cl_float3)); //output buffer
+  Buffer gpu_output = Buffer(context, CL_MEM_WRITE_ONLY,c.width*c.height*sizeof(cl_float3)); //output buffer
   Buffer gpu_input = Buffer(context,CL_MEM_READ_ONLY,3*sizeof(float)); // input buffer
   queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, 3*sizeof(float), input); // write to the input buffer
 
@@ -179,7 +180,7 @@ cl_float3* RunKernal(struct Camera c)
   kernel.setArg(2, gpu_output);
 
   // each index of output will be computed at same time
-  std::size_t global_work_size = 10 * 10;
+  std::size_t global_work_size = c.width * c.height;
 	std::size_t local_work_size = kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
 
 	if (global_work_size % local_work_size != 0) global_work_size = (global_work_size / local_work_size + 1) * local_work_size;
@@ -189,16 +190,18 @@ cl_float3* RunKernal(struct Camera c)
 	queue.finish();
 
   // read from the output buffer
-  queue.enqueueReadBuffer(gpu_output, CL_TRUE, 0, 10*10*sizeof(cl_float3), output);
+  queue.enqueueReadBuffer(gpu_output, CL_TRUE, 0, c.width*c.height*sizeof(cl_float3), output);
 
   // display output
+  
   /*
-  for (int i = 0; i< 100;i++){
+  for (int i = 0; i< c.width*c.height;i++){
       printf("(%d) = {%2f,%2f,%2f} ",i,output[i].s[0],output[i].s[1],output[i].s[2]);
     
     printf("\n");
   }
   */
+  
 
   return output;
 }
