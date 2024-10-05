@@ -9,6 +9,7 @@
 #include <GL/GL.h>
 #include <tchar.h>
 #include <UI.h>
+#include <Renderer.h>
 
 // Data stored per platform window
 struct WGL_WindowData { HDC hDC; };
@@ -118,6 +119,13 @@ int main(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // init Renderer
+    vector<char*> files;
+
+    files.push_back("Renderer/kernel.cl");
+
+    OpenClinit(files);
 
     // Main loop
     bool done = false;
