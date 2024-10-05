@@ -126,6 +126,8 @@ int main(int, char**)
     // init Renderer
     vector<char*> files;
 
+    //files.push_back("Renderer/kernel_float3.cl");
+
     files.push_back("Renderer/kernel.cl");
 
     OpenClinit(files);

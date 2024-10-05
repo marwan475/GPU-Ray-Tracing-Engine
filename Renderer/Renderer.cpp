@@ -116,6 +116,17 @@ const char* DownloadKernalCode(vector<char*> files)
   return kernel_s;
 }
 
+void printErrorLog(const Program& program, const Device& device){
+
+	// Get the error log and print to console
+	string buildlog = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device);
+
+	// Print the error log to a file
+	FILE *log = fopen("errorlog.txt", "w");
+	fprintf(log, "%s\n", buildlog);
+	exit(1);
+}
+
 void OpenClinit(vector<char*> files)
 {
   
@@ -139,13 +150,17 @@ void OpenClinit(vector<char*> files)
 
   // compiling kernal code
   program = Program(context, kernel_s);
-  if ( program.build({ device }) ) fprintf(stderr,"Error durring Compilation of kernal code");
+  if ( program.build({ device }) ) {
+    fprintf(stderr,"Error durring Compilation of kernal code");
+    printErrorLog(program, device);
+    }
 
   kernel = Kernel(program, "kernel_main"); // kernal entry point
 
   fprintf(stdout,"Kernal compiled\n");
 
 }
+
 
 cl_float3* RunKernal(struct Camera c)
 {
