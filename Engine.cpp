@@ -147,6 +147,8 @@ int main(int, char**)
     camera.vup.y = 1;
     camera.vup.z = 0;
 
+    UpdateCamera(&camera);
+
     // Main loop
     bool done = false;
     while (!done)
@@ -173,7 +175,6 @@ int main(int, char**)
         ImGui::NewFrame();
 
         UI();
-        UpdateCamera(&camera);
         output = RunKernal();
 
         delete output;
