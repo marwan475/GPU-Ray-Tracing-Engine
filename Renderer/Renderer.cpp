@@ -177,8 +177,7 @@ cl_float* RunKernal(struct Camera c)
 
   Buffer gpu_output = Buffer(context, CL_MEM_WRITE_ONLY,c.width*c.height*3*sizeof(cl_float)); //output buffer
   Buffer gpu_input = Buffer(context,CL_MEM_READ_ONLY,3*sizeof(float)); // input buffer
-  queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, 3*sizeof(float), input); // write to the input buffer
-
+  queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, 3*sizeof(float), input); // write to the input buffer  
 
   // setting kernal args
   kernel.setArg(0, gpu_input);

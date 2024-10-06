@@ -128,9 +128,18 @@ void UI(GLuint texture,struct Camera *c)
     ImGui::Begin("test3",nullptr,flags);
 
     if (ImGui::Button("Toggle Shader view")) {
-        if (c->mode == 0) c->mode = 1;
-        else if (c->mode == 1) c->mode = 0;
+        if (c->mode == 0) {
+            c->mode = 1;
+        }
+        else c->mode = 0;
     }
+
+    if (c->mode >= 1) {
+            if(ImGui::Button("Switch Shader")){
+              if (c->mode == 2) c->mode = 1;
+              else c->mode++; 
+            }
+        }
 
     ImGui::End();
 
