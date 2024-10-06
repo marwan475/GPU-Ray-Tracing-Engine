@@ -167,7 +167,6 @@ int main(int, char**)
     camera.vup.z = 0;
     camera.mode = 0;
     camera.frames = 0;
-    camera.shader = 0;
 
     UpdateCamera(&camera);
 

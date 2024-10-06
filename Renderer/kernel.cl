@@ -179,10 +179,10 @@ float3 pixelcolor(struct ray r)
 float3 pallette(float t)
 {
 
-  float3 a = {0.5,0.5,0.5};
-  float3 b = {0.5,0.5,0.5};
-  float3 c = {1.0,1.0,1.0};
-  float3 d = {0.363,0.516,0.757};
+  float3 a = {0.3,0.3,0.3};
+  float3 b = {0.3,0.3,0.3};
+  float3 c = {0.8,0.8,0.8};
+  float3 d = {0.563,0.216,0.857};
 
   float3 r = Smultif((float)6.28318,addf(Smultif(t,c),d));
 
@@ -193,47 +193,6 @@ float3 pallette(float t)
   r = addf(a,multif(r,b));
 
   return r;
-}
-
-float3 shader(int x, int y,int width, int height,float time){
-
-  float3 fc = {0.0,0.0,0.0};
-
-  /* x and y pos scales from -1 - 1*/
-  float xv = ((((float)x/width)-0.5)*2.0)*((float)width/(float)height); 
-  float yv = (((float)y/height)-0.5)*-2.0;
-  
-  /*sperating color and shape generation*/
-  float xu = xv;
-  float yu = yv;
-
-  float2 u = {xu,yu};
-
-  for (int i = 0;i<3;i++){
-  
-    /*creating shape of animation*/ 
-    xv = (xv*1.0 - floor(xv*1.0)) -0.5;
-    yv = (yv*1.0 - floor(yv*1.0)) - 0.5;
-
-    float2 v = {xv,yv};
-
-    /*pick the color using pallete, add time to it for more randomness*/
-    float3 p = pallette(length(v)+time*0.7 + i*0.7);
-
-    float lv = length(v) * exp(0.1*length(u));
-
-    float l = fabs(sin(lv*8 + time)/8); 
-    l = pow((float)0.01/ l, (float)1.5);
-
-    float3 c = {l,l,l};
-
-    /*combining shape and color*/
-    c = multif(p,c);
-
-    fc = addf(fc,c);
-  }
-
-  return fc;
 }
 
 float3 pallette1(float t)
@@ -255,6 +214,35 @@ float3 pallette1(float t)
   return r;
 }
 
+float3 shader(int x, int y,int width, int height,float time, float3 color){
+
+  float3 fc = color;
+
+  /* x and y pos scales from -1 - 1*/
+  float xv = ((((float)x/width)-0.5)*2.0)*((float)width/(float)height); 
+  float yv = (((float)y/height)-0.5)*-2.0;
+  
+  /*sperating color and shape generation*/
+  float xu = xv;
+  float yu = yv;
+
+  float2 u = {xu,yu};
+
+  float frequency = 10.0;
+  float amplitude = 1.0;
+
+  float ripple = sin((yv + time) * frequency) * amplitude;
+
+  fc = Smultif(((float)1.0 + ripple / (float)100.0),fc);
+
+  return fc;
+}
+
+float circle(float2 uv,float r)
+{
+  return length(uv) - r;
+}
+
 float3 shader1(int x, int y,int width, int height,float time)
 {
   float3 finalcolor = {0.0,0.0,0.0};
@@ -267,28 +255,61 @@ float3 shader1(int x, int y,int width, int height,float time)
   float xu = xv;
   float yu = yv;
 
-  float2 u = {xu,yu};
+  float glowfactor = 1.0;
 
-  float glowfactor = 0.01;
+  float pulsefactor = 1.0;
 
-  float pulsefactor = 7.0;
+  float fractalfactor = 1.0;
 
-  float fractalfactor = 1.1;
+  float colorfactor = 1.0;
 
-  float colorfactor = 0.3;
+  float freqfactor = 1.0;
 
-  float freqfactor = 0.3;
+  float fractalvariance = 1.0;
 
-  for (int i = 0; i < 5;i++){
+  int iterations = 1;
 
-    xv = (xv*fractalfactor - floor(xv*fractalfactor)) -0.5;
-    yv = (yv*fractalfactor - floor(yv*fractalfactor)) - 0.5;
+  float3 tint = {1.0,1.0,1.0};
+
+  int pal = 0;
+
+  float cfractalfactor = 1.0;
+
+  int sfractal = 0;
+
+  int cfractal = 0;
+
+  float t = 0.0;
+
+  float sinf = 0.0;
+
+  float structf = 1.0; 
+
+  for (int i = 0; i < iterations;i++){
+
+    if (sfractal){
+      xv = (xv*fractalfactor - floor(xv*fractalfactor)) -0.5;
+      yv = (yv*fractalfactor - floor(yv*fractalfactor)) - 0.5;
+    }
+
+    if (cfractal){
+      xu = (xu*cfractalfactor - floor(xu*cfractalfactor)) -0.5;
+      yu = (yu*cfractalfactor - floor(yu*cfractalfactor)) - 0.5;
+    }
+
+    float2 u = {xu,yu};
 
     float2 v = {xv,yv};
 
-    float3 color = pallette1(length(u)+time*colorfactor + i*colorfactor);
+    float3 color = tint;
 
-    float sfactor = pow(glowfactor/(sin(length(v)*exp((float)freqfactor*length(u))*pulsefactor +time)/pulsefactor),(float)2.0);
+    float colorstruct = circle(u,(float)0.0);
+
+    if (pal == 1)color = multif(tint,pallette1(colorstruct+time*colorfactor*t + i*colorfactor*t));
+
+    float structure = circle(v,(float)0.0);
+
+    float sfactor = pow(glowfactor/(sin(structure*exp((float)freqfactor*length(u))*pulsefactor +time*t)/pulsefactor)*sinf + (structure*structf),(float)fractalvariance);
 
     float3 shape = {sfactor,sfactor,sfactor};
 
@@ -309,16 +330,19 @@ __kernel void kernel_main(__constant float* input, struct Camera c,__global floa
 
   float time = (float)c.frames/(float)60.0;
 
-  float3 color;
+  float3 color = {1.0,1.0,1.0};
 
   if (c.mode == 0){
     struct ray r = getray(x,y,c);
 
     color = pixelcolor(r);
+
+    color = shader(x,y,c.width,c.height,time,color);
+    
   }
 
   if (c.mode == 1){
-    color = shader(x,y,c.width,c.height,time);
+    color = shader(x,y,c.width,c.height,time,color);
   }
 
   if (c.mode == 2){
