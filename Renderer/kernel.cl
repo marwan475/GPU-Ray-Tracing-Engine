@@ -1,4 +1,35 @@
 
+/* STRUCTS */
+
+struct Camera{
+    int width;
+    int height;
+    float aspect_ratio;
+    float viewport_h;
+    float viewport_w;
+    float focal_length;
+    float3 position;
+    float3 viewport_u;
+    float3 viewport_v;
+    float fov;   
+    float3 look;
+    float3 vup;
+    float3 du,dv,dw;
+    float3 delta_u;
+    float3 delta_v;
+    float3 vp_upperleft;
+    float3 pixel_location;
+    int mode;
+    int frames;
+    float fps;
+};
+
+struct ray{
+    float3 origin;
+    float3 direction;
+};
+
+/* GENERAL USE FUNCTIONS */
 
 float3 addf(float3 a, float3 b)
 {
@@ -78,34 +109,6 @@ float3 fabs3(float3 f)
 
 }
 
-struct Camera{
-    int width;
-    int height;
-    float aspect_ratio;
-    float viewport_h;
-    float viewport_w;
-    float focal_length;
-    float3 position;
-    float3 viewport_u;
-    float3 viewport_v;
-    float fov;   
-    float3 look;
-    float3 vup;
-    float3 du,dv,dw;
-    float3 delta_u;
-    float3 delta_v;
-    float3 vp_upperleft;
-    float3 pixel_location;
-    int mode;
-    int frames;
-    float fps;
-};
-
-struct ray{
-    float3 origin;
-    float3 direction;
-};
-
 float3 get(float n, struct ray r)
 {
   float3 a;
@@ -139,41 +142,7 @@ float random(int s0, int s1) {
 	return (r.f - 2.0f) / 2.0f;
 }
 
-struct ray getray(int x, int y, struct Camera c)
-{
-  float3 center = addf(c.pixel_location,addf(Smultif((float)x,c.delta_u),Smultif((float)y,c.delta_v)));
-
-  float3 ray_direction = subf(center,c.position);
-
-  length(center);
-
-  struct ray r;
-
-  r.origin = c.position;
-  r.direction = ray_direction;
-
-  return r;
-
-}
-
-float3 background(struct ray r)
-{
-  float3 ud = normalize(r.direction);
-
-  float n = 0.5*(ud.y + 1.5);
-  float xn = 1.0 - n;
-
-  float3 color = {n*1.0,n*0.7,n*0.5};
-
-  float3 xcolor = {xn*1.0,xn*1.0,xn*1.0};
-
-  return addf(xcolor,color);
-}
-
-float3 pixelcolor(struct ray r)
-{
-  return background(r);
-}
+/* SHADER CODE */
 
 /*pallette that shader uses*/
 float3 pallette(float t)
@@ -320,6 +289,46 @@ float3 shader1(int x, int y,int width, int height,float time)
 
   return finalcolor;
 }
+
+/* RAY TRACER CODE*/
+
+struct ray getray(int x, int y, struct Camera c)
+{
+  float3 center = addf(c.pixel_location,addf(Smultif((float)x,c.delta_u),Smultif((float)y,c.delta_v)));
+
+  float3 ray_direction = subf(center,c.position);
+
+  length(center);
+
+  struct ray r;
+
+  r.origin = c.position;
+  r.direction = ray_direction;
+
+  return r;
+
+}
+
+float3 background(struct ray r)
+{
+  float3 ud = normalize(r.direction);
+
+  float n = 0.5*(ud.y + 1.5);
+  float xn = 1.0 - n;
+
+  float3 color = {n*1.0,n*0.7,n*0.5};
+
+  float3 xcolor = {xn*1.0,xn*1.0,xn*1.0};
+
+  return addf(xcolor,color);
+}
+
+float3 pixelcolor(struct ray r)
+{
+  return background(r);
+}
+
+/* MAIN FUNCTION */
 
 __kernel void kernel_main(__constant float* input, struct Camera c,__global float* output)
 {
