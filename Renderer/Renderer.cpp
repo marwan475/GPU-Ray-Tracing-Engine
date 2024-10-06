@@ -176,7 +176,7 @@ cl_float* RunKernal(struct Camera c)
 
   // setting kernal args
   kernel.setArg(0, gpu_input);
-  kernel.setArg(1, c);
+  kernel.setArg(1, sizeof(c),&c);
   kernel.setArg(2, gpu_output);
 
   // each index of output will be computed at same time
@@ -196,11 +196,12 @@ cl_float* RunKernal(struct Camera c)
   
   /*
   for (int i = 0; i< c.width*c.height;i++){
-      printf("(%d) = {%2f,%2f,%2f} ",i,output[i].s[0],output[i].s[1],output[i].s[2]);
+      printf("(%d) = %2f ",i,output[i]);
     
     printf("\n");
-  }
-  */
+  }*/
+
+  
   
 
   return output;

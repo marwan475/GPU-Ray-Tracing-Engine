@@ -165,6 +165,7 @@ int main(int, char**)
     camera.vup.x = 0;
     camera.vup.y = 1;
     camera.vup.z = 0;
+    camera.mode = 0;
 
     UpdateCamera(&camera);
 
@@ -195,11 +196,10 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        
+        UI(texture,&camera);
         output = RunKernal(camera);
-
         texture = CreateTexture(output,camera.width,camera.height);
-        UI(texture,camera.width,camera.height);
+        
 
         delete output;
 

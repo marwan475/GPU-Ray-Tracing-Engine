@@ -1,8 +1,9 @@
 #include <UI.h>
 #include "imgui.h"
 #include <stdio.h>
+#include <Renderer.h>
 
-void UI(GLuint texture,int width,int height) 
+void UI(GLuint texture,struct Camera *c) 
 {
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
@@ -115,7 +116,7 @@ void UI(GLuint texture,int width,int height)
     if (texture) {
         
         ImGui::Text("Framerate: %f fps",ImGui::GetIO().Framerate);
-        ImGui::Image((void*)(intptr_t)texture, ImVec2(width, height)); // Use actual dimensions
+        ImGui::Image((void*)(intptr_t)texture, ImVec2(c->width, c->height)); // Use actual dimensions
     } else {
         ImGui::Text("Failed to create texture.");
     }
@@ -125,6 +126,12 @@ void UI(GLuint texture,int width,int height)
     ImGui::End();
 
     ImGui::Begin("test3",nullptr,flags);
+
+    if (ImGui::Button("Toggle Shader view")) {
+        if (c->mode == 0) c->mode = 1;
+        else if (c->mode == 1) c->mode = 0;
+    }
+
     ImGui::End();
 
 

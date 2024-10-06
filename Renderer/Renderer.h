@@ -43,6 +43,7 @@ struct Camera{
     cl_float3 delta_v;
     cl_float3 vp_upperleft;
     cl_float3 pixel_location;
+    int mode;
 };
 
 inline cl_float3 cvert(vec3 v)

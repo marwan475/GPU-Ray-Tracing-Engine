@@ -3,6 +3,8 @@
 
 #include <GL/GL.h>
 
-void UI(GLuint texture,int width,int height); 
+struct Camera;
+
+void UI(GLuint texture,struct Camera* c); 
 
 #endif

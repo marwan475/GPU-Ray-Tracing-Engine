@@ -96,6 +96,7 @@ struct Camera{
     float3 delta_v;
     float3 vp_upperleft;
     float3 pixel_location;
+    int mode;
 };
 
 struct ray{
@@ -172,15 +173,34 @@ float3 pixelcolor(struct ray r)
   return background(r);
 }
 
+float3 shader(int x, int y,int width, int height){
+  float xv = ((float)x)/width;
+  float yv = ((float)y)/height;
+
+
+  float3 c = {xv,0,0.0};
+
+  return c;
+}
+
 __kernel void kernel_main(__constant float* input, struct Camera c,__global float* output)
 {
+
   unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
-  int x = work_item_id % c.width;	
-  int y = work_item_id / c.width;
+  int x = get_global_id(0) % c.width;	
+  int y = get_global_id(0) / c.width;
 
-  struct ray r = getray(x,y,c);
+  float3 color;
 
-  float3 color = pixelcolor(r);
+  if (c.mode == 0){
+    struct ray r = getray(x,y,c);
+
+    color = pixelcolor(r);
+  }
+
+  if (c.mode == 1){
+    color = shader(x,y,c.width,c.height);
+  }
 
   output[work_item_id] = color.x;
   output[work_item_id+1] = color.y;
