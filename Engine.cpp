@@ -166,6 +166,7 @@ int main(int, char**)
     camera.vup.y = 1;
     camera.vup.z = 0;
     camera.mode = 0;
+    camera.frames = 0;
 
     UpdateCamera(&camera);
 
@@ -199,9 +200,12 @@ int main(int, char**)
         UI(texture,&camera);
         output = RunKernal(camera);
         texture = CreateTexture(output,camera.width,camera.height);
-        
 
         delete output;
+
+        camera.frames += 1;
+
+        if (camera.frames > INT_MAX - 100) camera.frames = 0;
 
         // Rendering
         ImGui::Render();
@@ -223,6 +227,8 @@ int main(int, char**)
         // Present
         ::SwapBuffers(g_MainWindow.hDC);
     }
+
+    free((char*)kernel_s);
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();

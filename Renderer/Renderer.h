@@ -8,6 +8,7 @@
 #include <fstream>
 #include <math.h>
 #include <utility.h>
+#include <string.h>
 
 using namespace cl;
 
@@ -44,6 +45,7 @@ struct Camera{
     cl_float3 vp_upperleft;
     cl_float3 pixel_location;
     int mode;
+    int frames;
 };
 
 inline cl_float3 cvert(vec3 v)

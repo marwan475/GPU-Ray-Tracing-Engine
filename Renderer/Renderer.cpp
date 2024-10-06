@@ -97,6 +97,7 @@ const char* DownloadKernalCode(vector<char*> files)
    // kernal.cl contains kernal code to run on GPU
   const char* kernel_s;
   int i;
+  int j = 0;
   
   for (i = 0;i<files.size();i++){
     ifstream file(files[i]);
@@ -105,13 +106,16 @@ const char* DownloadKernalCode(vector<char*> files)
 	  exit(1);
     }
     while (!file.eof()){
+    j++;  
 	  char line[256];
 	  file.getline(line, 255);
 	  source += line;
     }
   }
 
-  kernel_s = source.c_str();
+  kernel_s = (char*)malloc(source.size()+1);
+
+  strcpy((char*)kernel_s, source.c_str());
 
   return kernel_s;
 }
@@ -154,6 +158,8 @@ void OpenClinit(vector<char*> files)
     fprintf(stderr,"Error durring Compilation of kernal code");
     printErrorLog(program, device);
     }
+
+  printf("ok");  
 
   kernel = Kernel(program, "kernel_main"); // kernal entry point
 

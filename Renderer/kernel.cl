@@ -97,6 +97,8 @@ struct Camera{
     float3 vp_upperleft;
     float3 pixel_location;
     int mode;
+    int frames;
+    float fps;
 };
 
 struct ray{
@@ -173,14 +175,64 @@ float3 pixelcolor(struct ray r)
   return background(r);
 }
 
-float3 shader(int x, int y,int width, int height){
-  float xv = ((float)x)/width;
-  float yv = ((float)y)/height;
+/*pallette that shader uses*/
+float3 pallette(float t)
+{
 
+  float3 a = {0.5,0.5,0.5};
+  float3 b = {0.5,0.5,0.5};
+  float3 c = {1.0,1.0,1.0};
+  float3 d = {0.263,0.416,0.557};
 
-  float3 c = {xv,0,0.0};
+  float3 r = Smultif((float)6.28318,addf(Smultif(t,c),d));
 
-  return c;
+  r.x = cos(r.x);
+  r.y = cos(r.y);
+  r.z = cos(r.z);
+
+  r = addf(a,multif(r,b));
+
+  return r;
+}
+
+float3 shader(int x, int y,int width, int height,float time){
+
+  float3 fc = {0.0,0.0,0.0};
+
+  /* x and y pos scales from -1 - 1*/
+  float xv = ((((float)x/width)-0.5)*2.0)*((float)width/(float)height); 
+  float yv = (((float)y/height)-0.5)*-2.0;
+  
+  /*sperating color and shape generation*/
+  float xu = xv;
+  float yu = yv;
+
+  float2 u = {xu,yu};
+
+  for (int i = 0;i<4;i++){
+    /*pick the color using pallete, add time to it for more randomness*/
+    float3 p = pallette(length(u)+time*0.4 + i*0.4);
+
+    /*creating shape of animation*/ 
+    xv = (xv*1.5 - floor(xv*1.5)) -0.5;
+    yv = (yv*1.5 - floor(yv*1.5)) - 0.5;
+
+    float2 v = {xv,yv};
+
+    float lv = length(v) * exp(-1*length(u));
+
+    float l = fabs(sin(lv*8 + time)/8); 
+    l = pow((float)0.01/ l, (float)2.0);
+
+    float3 c = {l,l,l};
+
+    /*combining shape and color*/
+    c = multif(p,c);
+
+    fc = addf(fc,c);
+  }
+
+  return fc;
 }
 
 __kernel void kernel_main(__constant float* input, struct Camera c,__global float* output)
@@ -189,6 +241,8 @@ __kernel void kernel_main(__constant float* input, struct Camera c,__global floa
   unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
   int x = get_global_id(0) % c.width;	
   int y = get_global_id(0) / c.width;
+
+  float time = (float)c.frames/(float)60.0;
 
   float3 color;
 
@@ -199,7 +253,7 @@ __kernel void kernel_main(__constant float* input, struct Camera c,__global floa
   }
 
   if (c.mode == 1){
-    color = shader(x,y,c.width,c.height);
+    color = shader(x,y,c.width,c.height,time);
   }
 
   output[work_item_id] = color.x;
