@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <Renderer.h>
 
-void UI(GLuint texture,struct Camera *c) 
+void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p) 
 {
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
@@ -112,6 +112,8 @@ void UI(GLuint texture,struct Camera *c)
 
     ImGui::End();
 
+    // VIEW PORT
+
     ImGui::Begin("ViewPort",nullptr,flags);
     if (texture) {
         
@@ -125,7 +127,7 @@ void UI(GLuint texture,struct Camera *c)
     ImGui::Begin("test2",nullptr,flags);
     ImGui::End();
 
-    ImGui::Begin("test3",nullptr,flags);
+    ImGui::Begin("Shaders",nullptr,flags);
 
     if (ImGui::Button("Toggle Shader view")) {
         if (c->mode == 0) {
@@ -140,6 +142,59 @@ void UI(GLuint texture,struct Camera *c)
               else c->mode++; 
             }
         }
+
+    if (c->mode == 2){
+      ImGui::Text("Shader Editor");
+
+      ImGui::SliderFloat("Glow", &(shader->glowfactor), 0.01f, 1.0f);
+      ImGui::SliderFloat("Pulse", &(shader->pulsefactor), 1.0f, 100.0f);
+      ImGui::SliderFloat("Fractal", &(shader->fractalfactor), 1.0f, 10.0f);
+      ImGui::SliderFloat("Color rate", &(shader->colorfactor), 0.0f, 5.0f);
+      ImGui::SliderFloat("Frequency Factor", &(shader->freqfactor), -10.0f, 10.0f);
+      ImGui::SliderFloat("Fractal Variance", &(shader->fractalvariance), 0.0f, 10.0f);
+      ImGui::InputInt("Iterations", &(shader->iterations));
+    
+      ImGui::InputInt("Palette ON", &(shader->pal));
+      ImGui::SliderFloat("Color Fractal", &(shader->cfractalfactor), 1.0f, 10.0f);
+      ImGui::InputInt("S Fractal ON", &(shader->sfractal));
+      ImGui::InputInt("C Fractal ON", &(shader->cfractal));
+      ImGui::SliderFloat("Time Rate", &(shader->t), 0.0f, 10.0f);
+      ImGui::SliderFloat("Sine Factor", &(shader->sinf), 0.0f, 1.0f);
+      ImGui::SliderFloat("Structural Factor", &(shader->structf), 0.0f, 1.0f);
+
+      static ImVec4 color1 = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+      ImGui::SeparatorText("Palette");
+
+      ImGui::ColorPicker3("##MyColor##1", (float*)&color1, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+      static ImVec4 color2 = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+
+      ImGui::ColorPicker3("##MyColor##2", (float*)&color2, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+      static ImVec4 color3 = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+
+      ImGui::ColorPicker3("##MyColor##3", (float*)&color3, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+      static ImVec4 color4 = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+
+      ImGui::ColorPicker3("##MyColor##4", (float*)&color4, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+      p->p1.x = color1.x;
+      p->p1.y = color1.y;
+      p->p1.z = color1.z;
+
+      p->p2.x = color2.x;
+      p->p2.y = color2.y;
+      p->p2.z = color2.z;
+
+      p->p3.x = color3.x;
+      p->p3.y = color3.y;
+      p->p3.z = color3.z;
+
+      p->p4.x = color4.x;
+      p->p4.y = color4.y;
+      p->p4.z = color4.z;
+    }
 
     ImGui::End();
 

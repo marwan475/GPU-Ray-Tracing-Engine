@@ -21,12 +21,36 @@ struct Camera{
     float3 pixel_location;
     int mode;
     int frames;
-    float fps;
 };
 
 struct ray{
     float3 origin;
     float3 direction;
+};
+
+struct Shader{
+  float glowfactor;
+  float pulsefactor;
+  float fractalfactor;
+  float colorfactor;
+  float freqfactor;
+  float fractalvariance;
+  int iterations;
+  float3 tint;
+  int pal;
+  float cfractalfactor ;
+  int sfractal;
+  int cfractal;
+  float t;
+  float sinf;
+  float structf;
+};
+
+struct Palette{
+  float3 p1;
+  float3 p2;
+  float3 p3;
+  float3 p4; 
 };
 
 /* GENERAL USE FUNCTIONS */
@@ -144,33 +168,20 @@ float random(int s0, int s1) {
 
 /* SHADER CODE */
 
+float3 p1;
+float3 p2;
+float3 p3;
+float3 p4;
+
+
 /*pallette that shader uses*/
 float3 pallette(float t)
 {
 
-  float3 a = {0.3,0.3,0.3};
-  float3 b = {0.3,0.3,0.3};
-  float3 c = {0.8,0.8,0.8};
-  float3 d = {0.563,0.216,0.857};
-
-  float3 r = Smultif((float)6.28318,addf(Smultif(t,c),d));
-
-  r.x = cos(r.x);
-  r.y = cos(r.y);
-  r.z = cos(r.z);
-
-  r = addf(a,multif(r,b));
-
-  return r;
-}
-
-float3 pallette1(float t)
-{
-
-  float3 a = {0.808, 0.628, 1.208};
-  float3 b = {-0.442, -0.302, 0.318};
-  float3 c = {3.138, 3.138, 3.138};
-  float3 d = {1.068, 0.408, 0.988};
+  float3 a = p1;
+  float3 b = p2;
+  float3 c = p3;
+  float3 d = p4;
 
   float3 r = Smultif((float)6.28318,addf(Smultif(t,c),d));
 
@@ -212,7 +223,7 @@ float circle(float2 uv,float r)
   return length(uv) - r;
 }
 
-float3 shader1(int x, int y,int width, int height,float time)
+float3 shader1(int x, int y,int width, int height,float time,struct Shader s)
 {
   float3 finalcolor = {0.0,0.0,0.0};
 
@@ -224,35 +235,35 @@ float3 shader1(int x, int y,int width, int height,float time)
   float xu = xv;
   float yu = yv;
 
-  float glowfactor = 1.0;
+  float glowfactor = s.glowfactor;
 
-  float pulsefactor = 1.0;
+  float pulsefactor = s.pulsefactor;
 
-  float fractalfactor = 1.0;
+  float fractalfactor = s.fractalfactor;
 
-  float colorfactor = 1.0;
+  float colorfactor = s.colorfactor;
 
-  float freqfactor = 1.0;
+  float freqfactor = s.freqfactor;
 
-  float fractalvariance = 1.0;
+  float fractalvariance = s.fractalvariance;
 
-  int iterations = 1;
+  int iterations = s.iterations;
 
   float3 tint = {1.0,1.0,1.0};
 
-  int pal = 0;
+  int pal = s.pal;
 
-  float cfractalfactor = 1.0;
+  float cfractalfactor = s.cfractalfactor;
 
-  int sfractal = 0;
+  int sfractal = s.sfractal;
 
-  int cfractal = 0;
+  int cfractal = s.cfractal;
 
-  float t = 0.0;
+  float t = s.t;
 
-  float sinf = 0.0;
+  float sinf = s.sinf;
 
-  float structf = 1.0; 
+  float structf = s.structf; 
 
   for (int i = 0; i < iterations;i++){
 
@@ -274,7 +285,7 @@ float3 shader1(int x, int y,int width, int height,float time)
 
     float colorstruct = circle(u,(float)0.0);
 
-    if (pal == 1)color = multif(tint,pallette1(colorstruct+time*colorfactor*t + i*colorfactor*t));
+    if (pal >= 1)color = multif(tint,pallette(colorstruct+time*colorfactor*t + i*colorfactor*t));
 
     float structure = circle(v,(float)0.0);
 
@@ -330,7 +341,7 @@ float3 pixelcolor(struct ray r)
 
 /* MAIN FUNCTION */
 
-__kernel void kernel_main(__constant float* input, struct Camera c,__global float* output)
+__kernel void kernel_main(__constant float* input, struct Camera c,struct Shader s,struct Palette p,__global float* output)
 {
 
   unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
@@ -346,7 +357,7 @@ __kernel void kernel_main(__constant float* input, struct Camera c,__global floa
 
     color = pixelcolor(r);
 
-    color = shader(x,y,c.width,c.height,time,color);
+    /*color = shader(x,y,c.width,c.height,time,color);*/
     
   }
 
@@ -355,7 +366,11 @@ __kernel void kernel_main(__constant float* input, struct Camera c,__global floa
   }
 
   if (c.mode == 2){
-    color = shader1(x,y,c.width,c.height,time);
+    color = shader1(x,y,c.width,c.height,time,s);
+    p1 = p.p1;
+    p2 = p.p2;
+    p3 = p.p3;
+    p4 = p.p4;
   }
 
 

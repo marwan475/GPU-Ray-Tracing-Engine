@@ -48,6 +48,31 @@ struct Camera{
     int frames;
 };
 
+struct Shader{
+  cl_float glowfactor = 1.0;
+  cl_float pulsefactor = 1.0;
+  cl_float fractalfactor = 1.0;
+  cl_float colorfactor = 1.0;
+  cl_float freqfactor = 1.0;
+  cl_float fractalvariance = 1.0;
+  int iterations = 1;
+  cl_float3 tint = {1.0,1.0,1.0};
+  int pal = 0;
+  cl_float cfractalfactor = 1.0;
+  int sfractal = 0;
+  int cfractal = 0;
+  cl_float t = 0.0;
+  cl_float sinf = 0.0;
+  cl_float structf = 0.0;  
+};
+
+struct Palette{
+  cl_float3 p1;
+  cl_float3 p2;
+  cl_float3 p3;
+  cl_float3 p4; 
+};
+
 inline cl_float3 cvert(vec3 v)
 {
   cl_float3 r;
@@ -64,7 +89,7 @@ inline vec3 vvert(cl_float3 c)
 }
 
 void OpenClinit(vector<char*> files);
-float* RunKernal(struct Camera c);
+float* RunKernal(struct Camera c,struct Shader s,struct Palette p);
 void UpdateCamera(struct Camera* c);
 
 #endif

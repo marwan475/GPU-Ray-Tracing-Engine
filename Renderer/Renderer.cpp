@@ -168,7 +168,7 @@ void OpenClinit(vector<char*> files)
 }
 
 
-cl_float* RunKernal(struct Camera c)
+cl_float* RunKernal(struct Camera c,struct Shader s,struct Palette p)
 {
 
   cl_float* output = new float[c.width*c.height*3]; // gpu output
@@ -182,7 +182,9 @@ cl_float* RunKernal(struct Camera c)
   // setting kernal args
   kernel.setArg(0, gpu_input);
   kernel.setArg(1, sizeof(c),&c);
-  kernel.setArg(2, gpu_output);
+  kernel.setArg(2, sizeof(s),&s);
+  kernel.setArg(3, sizeof(p),&p);
+  kernel.setArg(4, gpu_output);
 
   // each index of output will be computed at same time
   std::size_t global_work_size = c.width * c.height;

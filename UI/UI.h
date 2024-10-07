@@ -5,6 +5,6 @@
 
 struct Camera;
 
-void UI(GLuint texture,struct Camera* c); 
+void UI(GLuint texture,struct Camera* c,struct Shader *s,struct Palette *p); 
 
 #endif
