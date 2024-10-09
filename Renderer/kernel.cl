@@ -552,8 +552,8 @@ __kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struc
   }
 
 
-  output[work_item_id] = color.x;
-  output[work_item_id+1] = color.y;
-  output[work_item_id+2] = color.z;
+  output[work_item_id] = sqrt(color.x);
+  output[work_item_id+1] = sqrt(color.y);
+  output[work_item_id+2] = sqrt(color.z);
 
 }

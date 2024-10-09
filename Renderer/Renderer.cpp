@@ -182,7 +182,7 @@ cl_float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scen
   scene.data[0].mat = 1;
 
   scene.data[1].type = 1;
-  pos = {0.0,-100.5,-1.0};
+  pos = {0.0,-101.0,-1.0};
   scene.data[1].position = pos;
   scene.data[1].radius = 100.0;
   color = {0.4,0.3,0.1};
