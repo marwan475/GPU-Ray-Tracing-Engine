@@ -73,6 +73,12 @@ struct Palette{
   cl_float3 p4; 
 };
 
+struct Object{
+  int type;
+  cl_float3 position;
+  cl_float radius;
+};
+
 struct Scene{
   cl_float3 bg;
 };

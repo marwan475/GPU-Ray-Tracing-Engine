@@ -53,6 +53,19 @@ struct Palette{
   float3 p4; 
 };
 
+struct Record{
+  float3 point;
+  float3 normal;
+  float t;
+  int face;
+};
+
+struct Object{
+  int type;
+  float3 position;
+  float radius;
+};
+
 struct Scene{
   float3 bg;
 };
@@ -168,6 +181,14 @@ float random(int s0, int s1) {
 
 	r.ui = (ir & 0x007fffff) | 0x40000000;  
 	return (r.f - 2.0f) / 2.0f;
+}
+
+void set_face(struct ray r,float3 normal,struct Record *rec)
+{
+  rec->face = dot(r.direction,normal) < (float)0.0;
+
+  if (rec->face) rec->normal = normal;
+  else rec->normal = Smultif(-1.0,normal);
 }
 
 /* SHADER CODE */
@@ -324,6 +345,34 @@ struct ray getray(int x, int y, struct Camera c)
 
 }
 
+int hit_sphere(struct Object s,struct ray r, float tmin,struct Record *rec)
+{
+
+  float tmax = INFINITY;
+
+  float3 oc = subf(s.position,r.origin);
+  float a = dot(r.direction,r.direction);
+  float b = dot(r.direction,oc);
+  float c = dot(oc,oc) -(s.radius*s.radius);
+  float d = b*b - a*c;
+  float sd = sqrt(d);
+
+  if (d<0) return 0;
+
+  float rt = (b-sd)/a;
+  if (rt <= tmin || tmax <= rt){
+    rt = (b+sd)/a;
+    if (rt<=tmin || tmax <=rt) return 0;
+  }
+
+  rec->t = rt;
+  rec->point = get(rt,r);
+  float3 normal = Sdividef(s.radius,subf(rec->point,s.position));
+  set_face(r,normal,rec);
+
+  return 1;
+}
+
 float3 bgcolor;
 
 float3 background(struct ray r)
@@ -342,6 +391,18 @@ float3 background(struct ray r)
 
 float3 pixelcolor(struct ray r)
 {
+  struct Object s;
+  s.type = 1;
+  float3 pos = {0.0,0.0,-1.0};
+  s.position = pos;
+  s.radius = 0.5;
+
+  struct Record rec;
+
+  float3 c = {1.0,1.0,1.0};
+
+  if(hit_sphere(s,r,(float)0.0,&rec)) return c ;
+
   return background(r);
 }
 
