@@ -83,7 +83,7 @@ struct Object{
 
 struct Scene{
   cl_float3 bg;
-  struct Object data[3];
+  int objects;
 };
 
 inline cl_float3 cvert(vec3 v)

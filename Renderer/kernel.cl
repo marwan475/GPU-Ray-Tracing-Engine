@@ -72,7 +72,7 @@ struct Object{
 
 struct Scene{
   float3 bg;
-  struct Object data[3];
+  int objects;
 };
 
 /* GENERAL USE FUNCTIONS */
@@ -455,6 +455,8 @@ int material(struct ray r,struct Record rec,float3 *match, struct ray *scat,int 
   if (rec.mat == 1) return matte(r,rec,match,scat,i);
 }
 
+int objects;
+
 int hit_any_object(struct Object* scene,struct ray r, float tmin,struct Record *rec)
 {
   struct Object s;
@@ -463,7 +465,7 @@ int hit_any_object(struct Object* scene,struct ray r, float tmin,struct Record *
   float tmax = INFINITY;
   float closest = tmax;
 
-  for (int i = 0; i<2;i++){
+  for (int i = 0; i<objects;i++){
     s = scene[i];
     if (hit_sphere(s,r,tmin,closest,&re)){
       *rec = re;
@@ -508,7 +510,7 @@ float3 ray_color(struct ray r,struct Object* scene,int max_depth,int i)
 
 /* MAIN FUNCTION */
 
-__kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struct Scene scene,__global float* output,float rs1,float rs2)
+__kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struct Scene scene,__global float* output,float rs1,float rs2,__global struct Object* input)
 {
 
   unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
@@ -527,11 +529,13 @@ __kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struc
   int samples = 100;
   float sample_scale = 1.0/(float)samples;
 
+  objects = scene.objects;
+
   if (c.mode == 0){
     for (int i = 0;i<samples;i++){
       struct ray r = getray(x,y,c,i);
 
-      color = addf(color,ray_color(r,scene.data,50,i));
+      color = addf(color,ray_color(r,input,50,i));
     }
     color = Smultif(sample_scale,color);
 
