@@ -58,16 +58,21 @@ struct Record{
   float3 normal;
   float t;
   int face;
+  int mat;
+  float3 color;
 };
 
 struct Object{
   int type;
   float3 position;
   float radius;
+  int mat;
+  float3 color;
 };
 
 struct Scene{
   float3 bg;
+  struct Object data[3];
 };
 
 /* GENERAL USE FUNCTIONS */
@@ -166,6 +171,9 @@ float3 get(float n, struct ray r)
   return b;
   
 }
+
+int seed1;
+int seed2;
 
 float random(int s0, int s1) {
 	
@@ -328,13 +336,21 @@ float3 shader1(int x, int y,int width, int height,float time,struct Shader s)
 
 /* RAY TRACER CODE*/
 
-struct ray getray(int x, int y, struct Camera c)
+float3 sample_square(int x , int y)
 {
-  float3 center = addf(c.pixel_location,addf(Smultif((float)x,c.delta_u),Smultif((float)y,c.delta_v)));
+  float3 r = {random(x,y)-0.5,random(x,y)-0.5,0};
 
-  float3 ray_direction = subf(center,c.position);
+  return r;
+}
 
-  length(center);
+struct ray getray(int x, int y, struct Camera c, int i)
+{
+
+  float3 offset = sample_square(seed1+i,seed2+i*345);
+
+  float3 pixel_sample = addf(c.pixel_location,addf(Smultif(x+offset.x,c.delta_u),Smultif((float)y+offset.y,c.delta_v)));
+
+  float3 ray_direction = subf(pixel_sample,c.position);
 
   struct ray r;
 
@@ -345,10 +361,8 @@ struct ray getray(int x, int y, struct Camera c)
 
 }
 
-int hit_sphere(struct Object s,struct ray r, float tmin,struct Record *rec)
+int hit_sphere(struct Object s,struct ray r, float tmin,float tmax,struct Record *rec)
 {
-
-  float tmax = INFINITY;
 
   float3 oc = subf(s.position,r.origin);
   float a = dot(r.direction,r.direction);
@@ -369,6 +383,8 @@ int hit_sphere(struct Object s,struct ray r, float tmin,struct Record *rec)
   rec->point = get(rt,r);
   float3 normal = Sdividef(s.radius,subf(rec->point,s.position));
   set_face(r,normal,rec);
+  rec->mat = s.mat;
+  rec->color = s.color;
 
   return 1;
 }
@@ -389,26 +405,110 @@ float3 background(struct ray r)
   return addf(xcolor,color);
 }
 
-float3 pixelcolor(struct ray r)
+int near_zero(float3 a)
+{
+  const float threshold = 1e-8f;
+
+  return fabs(a.x) < threshold && fabs(a.y) < threshold && fabs(a.z) < threshold;
+}
+
+float3 rand_u(int i)
+{
+  float3 randU = {random(seed1+i,seed2+i*345),random(seed2+i*345,seed1+i),random(seed1+i*345,seed2*i)};
+  return randU;
+}
+
+float3 rand_in(int i)
+{
+  float3 t = {1.0,1.0,1.0};
+  float3 p = subf(Smultif((float)10.0,rand_u(i)),t);
+  int count = 0;
+
+  while(length(p)*length(p) >= (float)2.0){
+    p = subf(Smultif((float)2.0,rand_u(count+i)),t);
+    count += 1;
+  }
+
+  return p;
+}
+
+int matte(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i)
+{
+  float3 randU = rand_in(i);
+
+  float3 target = addf(rec.normal,randU);
+
+  float3 dir = addf(rec.normal,target);
+
+  if (near_zero(dir)) dir = rec.normal;
+
+  struct ray s = {rec.point,dir};
+
+  *scat = s;
+  *match = rec.color;
+
+  return 1;
+}
+
+int material(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i)
+{
+  if (rec.mat == 1) return matte(r,rec,match,scat,i);
+}
+
+int hit_any_object(struct Object* scene,struct ray r, float tmin,struct Record *rec)
 {
   struct Object s;
-  s.type = 1;
-  float3 pos = {0.0,0.0,-1.0};
-  s.position = pos;
-  s.radius = 0.5;
+  struct Record re;
+  int cont = 0;
+  float tmax = INFINITY;
+  float closest = tmax;
 
-  struct Record rec;
-
-  float3 c = {1.0,1.0,1.0};
-
-  if(hit_sphere(s,r,(float)0.0,&rec)) return c ;
-
-  return background(r);
+  for (int i = 0; i<2;i++){
+    s = scene[i];
+    if (hit_sphere(s,r,tmin,closest,&re)){
+      *rec = re;
+      closest = re.t;
+      cont = 1;
+    }
+  }
+  return cont;
 }
+
+float3 ray_color(struct ray r,struct Object* scene,int max_depth,int i)
+{
+  float3 color = {1.0,1.0,1.0};
+  float3 color2 = {0.0,0.0,0.0};
+  int depth = 0;
+
+  while (depth < max_depth){
+    struct Record rec;
+
+    if (hit_any_object(scene,r,0.001,&rec)){
+      struct ray scat;
+      float3 match;
+    
+      if(material(r,rec,&match,&scat,i+depth)){
+        color = multif(color,match);
+        r = scat;
+        depth++;
+      }else{
+        return color2;
+      }
+
+    }else {
+      return multif(color,background(r));  
+    }
+
+  }
+
+  return color2;
+}
+
+
 
 /* MAIN FUNCTION */
 
-__kernel void kernel_main(__constant float* input, struct Camera c,struct Shader s,struct Palette p,struct Scene scene,__global float* output)
+__kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struct Scene scene,__global float* output,float rs1,float rs2)
 {
 
   unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
@@ -419,12 +519,21 @@ __kernel void kernel_main(__constant float* input, struct Camera c,struct Shader
 
   bgcolor = scene.bg;
 
-  float3 color = {1.0,1.0,1.0};
+  float3 color = {0.0,0.0,0.0};
+
+  seed1 = x *c.frames% 1000 + (rs1*100);
+  seed2 = y *c.frames% 1000 + (rs2*100);
+
+  int samples = 100;
+  float sample_scale = 1.0/(float)samples;
 
   if (c.mode == 0){
-    struct ray r = getray(x,y,c);
+    for (int i = 0;i<samples;i++){
+      struct ray r = getray(x,y,c,i);
 
-    color = pixelcolor(r);
+      color = addf(color,ray_color(r,scene.data,50,i));
+    }
+    color = Smultif(sample_scale,color);
 
     /*color = shader(x,y,c.width,c.height,time,color);*/
     

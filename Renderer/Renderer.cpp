@@ -172,20 +172,33 @@ cl_float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scen
 {
 
   cl_float* output = new float[c.width*c.height*3]; // gpu output
-  float input[3] = { 3.0 , 7.0, 23.0}; // gpu input
-  float factor = 9.0;
+  
+  scene.data[0].type = 1;
+  cl_float3 pos = {0.0,0.0,-1.0};
+  scene.data[0].position = pos;
+  scene.data[0].radius = 0.5;
+  cl_float3 color = {0.7,0.1,0.3};
+  scene.data[0].color = color;
+  scene.data[0].mat = 1;
+
+  scene.data[1].type = 1;
+  pos = {0.0,-100.5,-1.0};
+  scene.data[1].position = pos;
+  scene.data[1].radius = 100.0;
+  color = {0.4,0.3,0.1};
+  scene.data[1].color = color;
+  scene.data[1].mat = 1;
 
   Buffer gpu_output = Buffer(context, CL_MEM_WRITE_ONLY,c.width*c.height*3*sizeof(cl_float)); //output buffer
-  Buffer gpu_input = Buffer(context,CL_MEM_READ_ONLY,3*sizeof(float)); // input buffer
-  queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, 3*sizeof(float), input); // write to the input buffer  
 
   // setting kernal args
-  kernel.setArg(0, gpu_input);
-  kernel.setArg(1, sizeof(c),&c);
-  kernel.setArg(2, sizeof(s),&s);
-  kernel.setArg(3, sizeof(p),&p);
-  kernel.setArg(4, sizeof(scene),&scene);
-  kernel.setArg(5, gpu_output);
+  kernel.setArg(0, sizeof(c),&c);
+  kernel.setArg(1, sizeof(s),&s);
+  kernel.setArg(2, sizeof(p),&p);
+  kernel.setArg(3, sizeof(scene),&scene);
+  kernel.setArg(4, gpu_output);
+  kernel.setArg(5, rand());
+  kernel.setArg(6,rand());
 
   // each index of output will be computed at same time
   std::size_t global_work_size = c.width * c.height;
@@ -201,6 +214,7 @@ cl_float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scen
   queue.enqueueReadBuffer(gpu_output, CL_TRUE, 0, c.width*c.height*3*sizeof(cl_float), output);
 
   // display output
+
   
   /*
   for (int i = 0; i< c.width*c.height;i++){

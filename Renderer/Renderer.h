@@ -77,10 +77,13 @@ struct Object{
   int type;
   cl_float3 position;
   cl_float radius;
+  int mat;
+  cl_float3 color;
 };
 
 struct Scene{
   cl_float3 bg;
+  struct Object data[3];
 };
 
 inline cl_float3 cvert(vec3 v)
