@@ -168,7 +168,7 @@ int main(int, char**)
     camera.mode = 0;
     camera.frames = 0;
 
-    UpdateCamera(&camera);
+    
 
     struct Shader shader;
     struct Palette palette;
@@ -202,6 +202,7 @@ int main(int, char**)
         ImGui::NewFrame();
 
         UI(texture,&camera,&shader,&palette,&scene);
+        UpdateCamera(&camera);
         output = RunKernal(camera,shader,palette,scene);
         texture = CreateTexture(output,camera.width,camera.height);
 

@@ -273,7 +273,7 @@ void UpdateCamera(struct Camera *c)
 
   c->pixel_location = cvert(addVectors(vvert(c->vp_upperleft),SmultiVector(0.5,addVectors(vvert(c->delta_u),vvert(c->delta_v)))));
 
-  printf("%f, %f, %f\n",c->pixel_location.x,c->pixel_location.y,c->pixel_location.z);
+  //printf("%f, %f, %f\n",c->pixel_location.x,c->pixel_location.y,c->pixel_location.z);
 
 }
 

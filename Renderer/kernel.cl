@@ -506,8 +506,6 @@ float3 ray_color(struct ray r,struct Object* scene,int max_depth,int i)
   return color2;
 }
 
-
-
 /* MAIN FUNCTION */
 
 __kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struct Scene scene,__global float* output,float rs1,float rs2,__global struct Object* input)
@@ -548,11 +546,11 @@ __kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struc
   }
 
   if (c.mode == 2){
-    color = shader1(x,y,c.width,c.height,time,s);
     p1 = p.p1;
     p2 = p.p2;
     p3 = p.p3;
     p4 = p.p4;
+    color = shader1(x,y,c.width,c.height,time,s);
   }
 
 

@@ -110,10 +110,6 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,
     scene->bg.z = color.z;
 
 
-    if (0){
-        printf("%2f %2f %2f\n",color.x,color.y,color.z);
-    }
-
     ImGui::End();
 
     // VIEW PORT
@@ -126,6 +122,22 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,
     } else {
         ImGui::Text("Failed to create texture.");
     }
+    ImGui::End();
+
+    // CAMERA
+
+    ImGui::Begin("Camera",nullptr,flags);
+
+    ImGui::SliderFloat("Camera x position", &(c->position.x), -10.0f, 10.0f);
+    ImGui::SliderFloat("Camera y position", &(c->position.y), -10.0f, 10.0f);
+    ImGui::SliderFloat("Camera z position", &(c->position.z), -10.0f, 10.0f);
+
+    ImGui::SliderFloat("Camera x look at", &(c->look.x), -10.0f, 10.0f);
+    ImGui::SliderFloat("Camera y look at", &(c->look.y), -10.0f, 10.0f);
+    ImGui::SliderFloat("Camera z look at", &(c->look.z), -10.0f, 10.0f);
+
+    ImGui::SliderFloat("Camera FOV", &(c->fov), 0.0f, 120.0f);
+
     ImGui::End();
 
     ImGui::Begin("test2",nullptr,flags);
