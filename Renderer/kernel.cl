@@ -53,6 +53,10 @@ struct Palette{
   float3 p4; 
 };
 
+struct Scene{
+  float3 bg;
+};
+
 /* GENERAL USE FUNCTIONS */
 
 float3 addf(float3 a, float3 b)
@@ -320,6 +324,8 @@ struct ray getray(int x, int y, struct Camera c)
 
 }
 
+float3 bgcolor;
+
 float3 background(struct ray r)
 {
   float3 ud = normalize(r.direction);
@@ -327,7 +333,7 @@ float3 background(struct ray r)
   float n = 0.5*(ud.y + 1.5);
   float xn = 1.0 - n;
 
-  float3 color = {n*1.0,n*0.7,n*0.5};
+  float3 color = {n*bgcolor.x,n*bgcolor.y,n*bgcolor.z};
 
   float3 xcolor = {xn*1.0,xn*1.0,xn*1.0};
 
@@ -341,7 +347,7 @@ float3 pixelcolor(struct ray r)
 
 /* MAIN FUNCTION */
 
-__kernel void kernel_main(__constant float* input, struct Camera c,struct Shader s,struct Palette p,__global float* output)
+__kernel void kernel_main(__constant float* input, struct Camera c,struct Shader s,struct Palette p,struct Scene scene,__global float* output)
 {
 
   unsigned int work_item_id = get_global_id(0)*3;	/* the unique global id of the work item for current index*/
@@ -349,6 +355,8 @@ __kernel void kernel_main(__constant float* input, struct Camera c,struct Shader
   int y = get_global_id(0) / c.width;
 
   float time = (float)c.frames/(float)60.0;
+
+  bgcolor = scene.bg;
 
   float3 color = {1.0,1.0,1.0};
 

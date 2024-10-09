@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <Renderer.h>
 
-void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p) 
+void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,struct Scene *scene) 
 {
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
@@ -70,9 +70,13 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p)
         ImGui::EndMenuBar();
     }
 
+    // FLAGS
+
     static ImGuiWindowFlags flags = !ImGuiWindowFlags_NoMove | !ImGuiWindowFlags_NoResize;
 
-    ImGui::Begin("Test",nullptr,flags);
+    // SCENE
+
+    ImGui::Begin("Scene",nullptr,flags);
 
 
     if (ImGui::TreeNode("Item Tree"))
@@ -97,14 +101,14 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p)
         }
 
     static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
-    ImGui::SeparatorText("Color picker");
+    ImGui::SeparatorText("Background Color");
 
-    ImGui::Text("Both types:");
-    float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.40f;
-    ImGui::SetNextItemWidth(w);
     ImGui::ColorPicker3("##MyColor##5", (float*)&color, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
-    ImGui::SetNextItemWidth(w);
-    ImGui::ColorPicker3("##MyColor##6", (float*)&color, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+    scene->bg.x = color.x;
+    scene->bg.y = color.y;
+    scene->bg.z = color.z;
+
 
     if (0){
         printf("%2f %2f %2f\n",color.x,color.y,color.z);
@@ -126,6 +130,8 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p)
 
     ImGui::Begin("test2",nullptr,flags);
     ImGui::End();
+
+    // SHADERS
 
     ImGui::Begin("Shaders",nullptr,flags);
 

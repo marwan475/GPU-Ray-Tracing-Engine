@@ -172,6 +172,7 @@ int main(int, char**)
 
     struct Shader shader;
     struct Palette palette;
+    struct Scene scene;
 
     GLuint texture;
 
@@ -200,8 +201,8 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        UI(texture,&camera,&shader,&palette);
-        output = RunKernal(camera,shader,palette);
+        UI(texture,&camera,&shader,&palette,&scene);
+        output = RunKernal(camera,shader,palette,scene);
         texture = CreateTexture(output,camera.width,camera.height);
 
         delete output;

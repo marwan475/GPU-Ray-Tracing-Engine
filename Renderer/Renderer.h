@@ -73,6 +73,10 @@ struct Palette{
   cl_float3 p4; 
 };
 
+struct Scene{
+  cl_float3 bg;
+};
+
 inline cl_float3 cvert(vec3 v)
 {
   cl_float3 r;
@@ -89,7 +93,7 @@ inline vec3 vvert(cl_float3 c)
 }
 
 void OpenClinit(vector<char*> files);
-float* RunKernal(struct Camera c,struct Shader s,struct Palette p);
+float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scene scene);
 void UpdateCamera(struct Camera* c);
 
 #endif
