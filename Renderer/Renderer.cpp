@@ -168,45 +168,15 @@ void OpenClinit(vector<char*> files)
 }
 
 
-cl_float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scene scene)
+cl_float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scene scene,struct Object* scened)
 {
 
   cl_float* output = new float[c.width*c.height*3]; // gpu output
 
-  int objects = 3;
-
-  scene.objects = objects;
-
-  struct Object scened[objects];
-  
-  scened[0].type = 1;
-  cl_float3 pos = {0.0,0.0,-1.0};
-  scened[0].position = pos;
-  scened[0].radius = 0.5;
-  cl_float3 color = {0.7,0.1,0.3};
-  scened[0].color = color;
-  scened[0].mat = 1;
-
-  scened[1].type = 1;
-  pos = {0.0,-100.5,-1.0};
-  scened[1].position = pos;
-  scened[1].radius = 100.0;
-  color = {0.4,0.3,0.1};
-  scened[1].color = color;
-  scened[1].mat = 1;
-
-  scened[2].type = 1;
-  pos = {1.0,0.0,-1.0};
-  scened[2].position = pos;
-  scened[2].radius = 0.5;
-  color = {0.9,0.2,0.1};
-  scened[2].color = color;
-  scened[2].mat = 1;
-
   struct Object* input = scened;
 
-  Buffer gpu_input = Buffer(context,CL_MEM_READ_ONLY,objects*sizeof(struct Object)); 
-  queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, objects*sizeof(struct Object), input);
+  Buffer gpu_input = Buffer(context,CL_MEM_READ_ONLY,MAX_OBJECTS*sizeof(struct Object)); 
+  queue.enqueueWriteBuffer(gpu_input, CL_TRUE, 0, MAX_OBJECTS*sizeof(struct Object), input);
   Buffer gpu_output = Buffer(context, CL_MEM_WRITE_ONLY,c.width*c.height*3*sizeof(cl_float)); //output buffer
 
   // setting kernal args

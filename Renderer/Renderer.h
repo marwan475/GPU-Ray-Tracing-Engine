@@ -26,6 +26,8 @@ extern const char* kernel_s; // will contain our kernal source code
 extern Program program;
 extern Kernel kernel;
 
+#define MAX_OBJECTS 100
+
 struct Camera{
     int width;
     int height;
@@ -102,7 +104,7 @@ inline vec3 vvert(cl_float3 c)
 }
 
 void OpenClinit(vector<char*> files);
-float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scene scene);
+float* RunKernal(struct Camera c,struct Shader s,struct Palette p,struct Scene scene,struct Object *scened);
 void UpdateCamera(struct Camera* c);
 
 #endif
