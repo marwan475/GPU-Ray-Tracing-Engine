@@ -180,6 +180,8 @@ int main(int, char**)
 
     struct Object scened[MAX_OBJECTS];
 
+    memset(scened,0,sizeof(struct Object)*MAX_OBJECTS);
+
     scened[0].type = 1;
     cl_float3 pos = {0.0,0.0,-1.0};
     scened[0].position = pos;
@@ -229,7 +231,7 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        UI(texture,&camera,&shader,&palette,&scene);
+        UI(texture,&camera,&shader,&palette,&scene,scened);
         UpdateCamera(&camera);
         output = RunKernal(camera,shader,palette,scene,scened);
         texture = CreateTexture(output,camera.width,camera.height);

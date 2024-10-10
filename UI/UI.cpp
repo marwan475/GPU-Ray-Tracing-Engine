@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <Renderer.h>
 
-void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,struct Scene *scene) 
+void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,struct Scene *scene,struct Object* scened) 
 {
     static bool opt_fullscreen = true;
     static bool opt_padding = false;
@@ -78,28 +78,6 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,
 
     ImGui::Begin("Scene",nullptr,flags);
 
-
-    if (ImGui::TreeNode("Item Tree"))
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                if (i == 0)
-                    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-
-                ImGui::PushID(i);
-                if (ImGui::TreeNode("", "item %d", i))
-                {
-                    ImGui::Text("sub item");
-                    if (ImGui::SmallButton("sub item button")) {
-                        printf("Sub item button pressed");
-                    }
-                    ImGui::TreePop();
-                }
-                ImGui::PopID();
-            }
-            ImGui::TreePop();
-        }
-
     static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
     ImGui::SeparatorText("Background Color");
 
@@ -109,6 +87,28 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,
     scene->bg.y = color.y;
     scene->bg.z = color.z;
 
+    ImGui::SeparatorText("Add Object");
+
+    ImGui::InputInt("type, sphere = 1", &(scened[scene->objects].type));
+    ImGui::InputFloat("x position", &(scened[scene->objects].position.x), -10.0f, 10.0f);
+    ImGui::InputFloat("y position", &(scened[scene->objects].position.y), -10.0f, 10.0f);
+    ImGui::InputFloat("z position", &(scened[scene->objects].position.z), -10.0f, 10.0f);
+
+    ImGui::InputFloat("radius", &(scened[scene->objects].radius), 0.0f, 10.0f);
+    ImGui::InputInt("material, matte = 1", &(scened[scene->objects].mat));
+
+    static ImVec4 colorob = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+    ImGui::SeparatorText("Object Color");
+
+    ImGui::ColorPicker3("##MyColor##10", (float*)&colorob, ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
+
+    if(ImGui::Button("Add")){
+      scened[scene->objects].color.x = colorob.x;
+      scened[scene->objects].color.y = colorob.y;
+      scened[scene->objects].color.z = colorob.z;
+
+      scene->objects++;
+    }
 
     ImGui::End();
 
