@@ -73,6 +73,8 @@ struct Object{
 struct Scene{
   float3 bg;
   int objects;
+  int samples;
+  int depth;
 };
 
 /* GENERAL USE FUNCTIONS */
@@ -579,8 +581,10 @@ __kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struc
   seed1 = x *c.frames% 1000 + (rs1*100);
   seed2 = y *c.frames% 1000 + (rs2*100);
 
-  int samples = 100;
+  int samples = scene.samples;
   float sample_scale = 1.0/(float)samples;
+
+  int depth = scene.depth;
 
   objects = scene.objects;
 
@@ -588,7 +592,7 @@ __kernel void kernel_main(struct Camera c,struct Shader s,struct Palette p,struc
     for (int i = 0;i<samples;i++){
       struct ray r = getray(x,y,c,i);
 
-      color = addf(color,ray_color(r,input,50,i));
+      color = addf(color,ray_color(r,input,depth,i));
     }
     color = Smultif(sample_scale,color);
 

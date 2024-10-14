@@ -86,6 +86,8 @@ struct Object{
 struct Scene{
   cl_float3 bg;
   int objects;
+  int samples;
+  int depth;
 };
 
 inline cl_float3 cvert(vec3 v)

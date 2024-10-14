@@ -140,7 +140,9 @@ void UI(GLuint texture,struct Camera *c,struct Shader *shader,struct Palette* p,
 
     ImGui::End();
 
-    ImGui::Begin("test2",nullptr,flags);
+    ImGui::Begin("Renderer",nullptr,flags);
+    ImGui::InputInt("samples per pixel", &(scene->samples));
+    ImGui::InputInt("ray bounces", &(scene->depth));
     ImGui::End();
 
     // SHADERS

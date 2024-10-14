@@ -177,6 +177,8 @@ int main(int, char**)
     int objects = 3;
 
     scene.objects = objects;
+    scene.samples = 100;
+    scene.depth = 50;
 
     struct Object scened[MAX_OBJECTS];
 
