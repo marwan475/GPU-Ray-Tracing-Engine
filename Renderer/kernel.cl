@@ -463,10 +463,51 @@ int metal(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i){
   return 1;
 }
 
+float3 refract(float3 uv,float3 n,float et){
+  float ct = fmin(dot(Smultif((float)-1.0,uv),n),(float)1.0);
+  float3 r_out = Smultif(et,addf(uv,Smultif(ct,n)));
+  float3 r_l = Smultif((float)-1.0*sqrt(fabs((float)1.0 - length(r_out)*length(r_out))),n);
+
+  return addf(r_out,r_l);
+}
+
+float reflectance(float cos,float rid){
+  float r0 = ((float)1.0 - rid)/((float)1.0 + rid);
+  r0 = r0 * r0;
+  return r0 + ((float)1.0 - r0)*pow((float)1.0-cos,5);
+}
+
+float ri = 1.50;
+
+int glass(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i){
+  float3 cc = {1.0,1.0,1.0};
+  *match = cc;
+  float rid;
+
+  if (rec.face) rid = 1.0/ri;
+  else rid = ri;
+
+  float3 ud = normalize(r.direction);
+  float cos = fmin(dot(Smultif((float)-1.0,ud),rec.normal),(float)1.0);
+  float sin = sqrt((float)1.0 - cos*cos);
+
+  int cref = rid*sin > (float)1.0;
+  float3 dir;
+ 
+  if (cref || reflectance(cos,rid) > random(seed1+i,seed2+i*345)) dir = reflect(ud,rec.normal);
+  else dir = refract(ud,rec.normal,rid);
+
+  struct ray s = {rec.point,dir};
+  *scat = s;
+
+  return 1;
+}
+
 int material(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i)
 {
   if (rec.mat == 1) return matte(r,rec,match,scat,i);
   else if (rec.mat == 2) return metal(r,rec,match,scat,i);
+  else if (rec.mat == 3) return glass(r,rec,match,scat,i);
 }
 
 int objects;
