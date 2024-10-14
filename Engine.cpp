@@ -236,7 +236,7 @@ int main(int, char**)
         output = RunKernal(camera,shader,palette,scene,scened);
         texture = CreateTexture(output,camera.width,camera.height);
 
-        delete output;
+        delete [] output;
 
         camera.frames += 1;
 

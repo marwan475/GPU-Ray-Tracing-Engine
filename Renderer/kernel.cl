@@ -450,9 +450,23 @@ int matte(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i)
   return 1;
 }
 
+float3 reflect(float3 v, float3 u){
+  return subf(v,Smultif((float)2.0*dot(v,u),u));
+}
+
+int metal(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i){
+  float3 ref = reflect(r.direction,rec.normal);
+  struct ray s = {rec.point,ref};
+  *scat = s;
+  *match = rec.color;
+   
+  return 1;
+}
+
 int material(struct ray r,struct Record rec,float3 *match, struct ray *scat,int i)
 {
   if (rec.mat == 1) return matte(r,rec,match,scat,i);
+  else if (rec.mat == 2) return metal(r,rec,match,scat,i);
 }
 
 int objects;
