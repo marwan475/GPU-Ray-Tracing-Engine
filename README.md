@@ -1,3 +1,5 @@
-# GPU Ray Tracing Engine With Shaders
+# GPU Ray Tracing Engine 
 
-Large scale project, Raytracing engine that will be a windows application.
+GPU ray tracing engine, running ray tracing algorithm as a compute shader on the GPU using OpenCL.
+
+Provides a UI for editing the scene and debugging using Dear IMGUI
